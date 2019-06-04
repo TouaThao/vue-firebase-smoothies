@@ -19,39 +19,13 @@
 </template>
 
 <script>
+import db from '@/firebase/init'
 export default {
   name: "Index",
   data() {
     return {
-      smoothies: [
-        {
-          title: "TrexBrew",
-          slug: "Trex-Brew",
-          ingredients: [
-            "apple",
-            "strawberry",
-            "coffe",
-            "honey",
-            "coconut",
-            "milk"
-          ],
-          id: "1"
-        },
-        {
-          title: "AngryHulk",
-          slug: "Angry-Hulk",
-          ingredients: [
-            "apple",
-            "espresso",
-            "cinnamon",
-            "sugarcane",
-            "honeydew",
-            "milk"
-          ],
-          id: "2"
-        }
-      ]
-    };
+      smoothies: []
+    }
   },
   methods:{
     deleteSmoothie(id){
@@ -59,6 +33,15 @@ export default {
         return smoothie.id != id
       })
     }
+  },
+  created(){
+    //fetch data
+    db.collection('smoothie').get()
+    .then(snapeshot => {
+      snapeshot.forEach( doc => {
+        console.log(doc)
+      })
+    }) 
   }
 };
 </script>
