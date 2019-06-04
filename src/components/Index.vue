@@ -39,7 +39,10 @@ export default {
     db.collection('smoothie').get()
     .then(snapeshot => {
       snapeshot.forEach( doc => {
-        console.log(doc)
+        console.log(doc.data(), doc.id)
+        let smoothie = doc.data()
+        smoothie.id = doc.id
+        this.smoothies.push(smoothie)
       })
     }) 
   }
