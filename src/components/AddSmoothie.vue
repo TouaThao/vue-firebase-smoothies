@@ -12,7 +12,7 @@
            </div>
            <div class="field add-ingredient">
                <label for="add-ingredient">Add an ingredient:</label>
-               <input input="text" name="add-ingredient" @keydown.tab.prevent="addIng" v-model="another">
+               <input input="text" name="add-ingredient" @keydown.enter.prevent="addIng" v-model="another">
            </div>
            <div class="field center align">
                <p class="red-text" v-if="feedback">{{feedback}}</p>
@@ -23,6 +23,9 @@
 </template>
 
 </<script>
+import db from '@/firebase/init'
+//use slugify to handle the slug
+import slugify from 'slugify'
 export default {
     name:'addsmoothie',
     data(){
@@ -31,11 +34,32 @@ export default {
             another:null,
             ingredients:[],
             feedback:null, 
+            slug:null,
         }
     },
     methods:{
         AddSmoothie(){
-            console.log('testint the add function',this.title)
+            if(this.title){
+                this.feedback = null
+                //slug need to go here
+                //create a slug
+                this.slug = slugify(this.title,{
+                    replacement:'-',
+                    remove: /[$*_+~.()'"!\-:@]/g,
+                    lower:true
+                })
+                db.collection('smoothie').add({
+                    title:this.title,
+                    ingredients:this.ingredients,
+                    slug:this.slug
+                }).then(()=>{
+                    this.$router.push({name:'Index'})
+                }).catch(error=>{
+                    console.log('error in adding smoothie',error)
+                })
+            }else{
+                this.feedback = "your must enter a title"
+            }
         },
         addIng(){
             if(this.another){
