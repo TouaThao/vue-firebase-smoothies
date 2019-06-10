@@ -1,7 +1,7 @@
 <template>
   <div class="add-smoothie container">
     <h2 class="center-align indigo-text">Add New Smoothie Recipe</h2>
-    <form @submit.prevent="AddSmoothie">
+    <form @submit.prevent="addSmoothie">
       <div class="field title">
         <label for="title">Smoothie Title</label>
         <input type="text" name="title" v-model="title">
@@ -35,32 +35,32 @@ export default {
             another:null,
             ingredients:[],
             feedback:null, 
-            slug:null,
+            slug:null
         }
     },
     methods:{
-        AddSmoothie(){
-            if(this.title){
-                this.feedback = null
-                //slug need to go here
-                //create a slug
-                this.slug = slugify(this.title,{
-                    replacement:'-',
-                    remove: /[$*_+~.()'"!\-:@]/g,
-                    lower:true
-                })
-                db.collection('smoothie').add({
-                    title:this.title,
-                    ingredients:this.ingredients,
-                    slug:this.slug
-                }).then(()=>{
-                    this.$router.push({name:'Index'})
-                }).catch(error=>{
-                    console.log('error in adding smoothie',error)
-                })
-            }else{
-                this.feedback = "your must enter a title"
-            }
+      addSmoothie(){
+      if(this.title){
+        this.feedback = null
+        // create a slug
+        this.slug = slugify(this.title, {
+          replacement: '-',
+          remove: /[$*_+~.()'"!\-:@]/g,
+          lower: true
+        })
+        //save smoothie to firestore
+        db.collection('smoothie').add({
+          title: this.title,
+          ingredients: this.ingredients,
+          slug: this.slug
+        }).then(() => {
+          this.$router.push({ name: 'Index' })
+        }).catch(err => {
+          console.log(err)
+        })
+      } else {
+        this.feedback = 'You must enter a smoothie title'
+      }
         },
         addIng(){
             if(this.another){
@@ -95,13 +95,13 @@ export default {
   margin: 20px auto;
   position: relative;
 }
- 
-.add-smoothie .delete{
-    cursor:pointer;
-    position:absolute;
-    right: 0;
-    bottom: 16px;
-    color:#aaa;
-    font-size: 1.4em;
+
+.add-smoothie .delete {
+  cursor: pointer;
+  position: absolute;
+  right: 0;
+  bottom: 16px;
+  color: #aaa;
+  font-size: 1.4em;
 }
 </style>
