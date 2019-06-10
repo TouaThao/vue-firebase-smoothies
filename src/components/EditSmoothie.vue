@@ -1,31 +1,93 @@
 <template>
-    <div v-if="smoothie" class="edit-smoothie container">
-        <h2>Edit a smoothie {{this.smoothie.title}}</h2>
-    </div>
+  <div v-if="smoothie" class="edit-smoothie container">
+    <h2>Edit a smoothie {{this.smoothie.title}}</h2>
+    <form @submit.prevent="EditSmoothie">
+      <div class="field title">
+        <label for="title">Smoothie Title</label>
+        <input type="text" name="title" v-model="smoothie.title">
+      </div>
+      <div v-for="(ing,index) in smoothie.ingredients" :key="index" class="field">
+        <label for="ingredients">ingredients:</label>
+        <input type="text" name="ingredients" v-model="smoothie.ingredients[index]">
+        <i class="material-icons delete" @click="deleteIng(ing)">delete</i>
+      </div>
+      <div class="field add-ingredient">
+        <label for="add-ingredient">Add an ingredient:</label>
+        <input input="text" name="add-ingredient" @keydown.enter.prevent="addIng" v-model="another">
+      </div>
+      <div class="field center align">
+        <p class="red-text" v-if="feedback">{{feedback}}</p>
+        <button class="btn pink">Update Smoothie</button>
+      </div>
+    </form>
+  </div>
 </template>
 
 <script>
-import db from '@/firebase/init'
-export default {  
-    name:'EditSmoothie',
-    data(){
-        return{
-            smoothie: null,
-        }
-    },
-    created(){
-        let ref = db.collection('smoothie').where('slug','==',this.$route.params.smoothie_slug)
-        ref.get().then(snapeshot=>{
-            snapeshot.forEach(doc=>{
-                this.smoothie = doc.data()
-                this.smoothie.id = doc.id
-            })
-        })
+import db from "@/firebase/init";
+export default {
+  name: "EditSmoothie",
+  data() {
+    return {
+      smoothie: null,
+      another: null,
+      feedback: null
+    };
+  },
+  created() {
+    let ref = db
+      .collection("smoothie")
+      .where("slug", "==", this.$route.params.smoothie_slug);
+    ref.get().then(snapeshot => {
+      snapeshot.forEach(doc => {
+        this.smoothie = doc.data();
+        this.smoothie.id = doc.id;
+      });
+    });
+  },
+  methods: {},
+  addIng() {
+    if (this.another) {
+      this.smoothie.ingredients.push(this.another);
+      this.another = null;
+      this.feedback = null;
+    } else {
+      this.feedback = "You Must Enter A Ingredients";
     }
-}
+  },
+  deleteIng(ing) {
+    this.smoothie.ingredients = this.smoothie.ingredients.filter(ingredient => {
+      return ingredient != ing;
+    });
+  },
+  EditSmoothie(){
+      
+  }
+};
 </script>
 
 <style>
+.edit-smoothie {
+  margin-top: 60px;
+  padding: 20px;
+  max-width: 500px;
+}
 
+.edit-smoothie h2 {
+  font-size: 2em;
+  margin: 20px auto;
+}
+.edit-smoothie .field {
+  margin: 20px auto;
+  position: relative;
+}
+
+.edit-smoothie .delete {
+  cursor: pointer;
+  position: absolute;
+  right: 0;
+  bottom: 16px;
+  color: #aaa;
+  font-size: 1.4em;
+}
 </style>
-
