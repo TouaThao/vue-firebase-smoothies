@@ -25,6 +25,7 @@
 
 <script>
 import db from "@/firebase/init";
+import slugify from 'slugify'
 export default {
   name: "EditSmoothie",
   data() {
@@ -45,8 +46,8 @@ export default {
       });
     });
   },
-  methods: {},
-  addIng() {
+  methods: {
+       addIng() {
     if (this.another) {
       this.smoothie.ingredients.push(this.another);
       this.another = null;
@@ -61,8 +62,30 @@ export default {
     });
   },
   EditSmoothie(){
-      
+       if(this.smoothie.title){
+        this.feedback = null
+        // create a slug
+        this.smoothie.slug = slugify(this.smoothie.title, {
+          replacement: '-',
+          remove: /[$*_+~.()'"!\-:@]/g,
+          lower: true
+        })
+        //save smoothie to firestore
+        db.collection('smoothie').doc(this.smoothie.id).update({
+          title: this.smoothie.title,
+          ingredients: this.smoothie.ingredients,
+          slug: this.smoothie.slug
+        }).then(() => {
+          this.$router.push({ name: 'Index' })
+        }).catch(err => {
+          console.log(err)
+        })
+      } else {
+        this.feedback = 'You must enter a smoothie title'
+      }
   }
+  },
+ 
 };
 </script>
 
